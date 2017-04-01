@@ -30,7 +30,21 @@ public class MyButton extends Button implements View.OnTouchListener{
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.d(TAG, "MyButton onTouchEvent: "+event.getAction());
+        Log.d(TAG, "MyButton onTouchEvent:begin "+event.getAction());
+
+        switch (event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                Log.d(TAG, "MyButton onTouchEvent:ACTION_DOWN "+event.getAction());
+                return false;
+            case MotionEvent.ACTION_MOVE:
+                Log.d(TAG, "MyButton onTouchEvent:ACTION_MOVE "+event.getAction());
+                return true;
+            case MotionEvent.ACTION_UP:
+                Log.d(TAG, "MyButton onTouchEvent:ACTION_UP "+event.getAction());
+                return true;
+        }
+        Log.d(TAG, "MyButton onTouchEvent:super "+event.getAction());
+
         return super.onTouchEvent(event);
     }
 

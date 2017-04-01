@@ -31,12 +31,15 @@ public class MyLayout extends LinearLayout implements View.OnTouchListener{
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         Log.d(TAG, "MyLayout onInterceptTouchEvent: "+ev.getAction());
+        /*返回true时，表示 viewGroup要拦截改事件，事件将不会传递到其子view，
+        * 而是会传递到自己的onTouchEvent()中
+        * */
 //        return true;
         return super.onInterceptTouchEvent(ev);
     }
 
     @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
+        public boolean onTouch(View view, MotionEvent motionEvent) {
         Log.d(TAG, "MyLayout onTouch: "+motionEvent.getAction());
         return false;
     }
@@ -44,7 +47,21 @@ public class MyLayout extends LinearLayout implements View.OnTouchListener{
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.d(TAG, "MyLayout onTouchEvent: "+event.getAction());
+        Log.d(TAG, "MyLayout onTouchEvent:begin "+event.getAction());
+
+        switch (event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                Log.d(TAG, "MyLayout onTouchEvent:ACTION_DOWN "+event.getAction());
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                Log.d(TAG, "MyLayout onTouchEvent:ACTION_MOVE "+event.getAction());
+                return false;
+            case MotionEvent.ACTION_UP:
+                Log.d(TAG, "MyLayout onTouchEvent:ACTION_UP "+event.getAction());
+                return true;
+        }
+        Log.d(TAG, "MyLayout onTouchEvent:super "+event.getAction());
+
         return super.onTouchEvent(event);
     }
 }
