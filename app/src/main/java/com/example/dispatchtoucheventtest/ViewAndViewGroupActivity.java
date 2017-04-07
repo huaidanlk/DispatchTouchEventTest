@@ -23,6 +23,7 @@ public class ViewAndViewGroupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_and_viewgroup);
+
         initView();
 
         /*事件首先是从Activity 分发到 decorView 然后在到 rootView ( 即setContentView()所设置的view)

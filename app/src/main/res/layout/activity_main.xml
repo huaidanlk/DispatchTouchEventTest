@@ -5,10 +5,16 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.example.dispatchtoucheventtest.MainActivity">
     <Button
         android:id="@+id/btn_view_viewGroup"
         android:text="ViewAndViewGroup事件分发机制"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/btn_sliding_menu"
+        android:text="侧滑菜单"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 </LinearLayout>

@@ -12,6 +12,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViewById(R.id.btn_view_viewGroup).setOnClickListener(this);
+        findViewById(R.id.btn_sliding_menu).setOnClickListener(this);
+
     }
 
     @Override
@@ -19,6 +21,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()){
             case R.id.btn_view_viewGroup:
                 startActivity(new Intent(this,ViewAndViewGroupActivity.class));
+                break;
+            case R.id.btn_sliding_menu:
+                startActivity(new Intent(this,SlidingMenuActivity.class));
                 break;
         }
     }
