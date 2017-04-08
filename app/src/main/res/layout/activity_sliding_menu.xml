@@ -12,10 +12,14 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:gravity="center"
+            android:layout_alignParentLeft="true"
+            android:background="@color/colorAccent"
             >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="left_layout"
+                android:textColor="#ffffff"
                 />
         </LinearLayout>
         <LinearLayout
@@ -24,11 +28,15 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:gravity="center"
+            android:layout_alignParentRight="true"
+            android:background="@color/colorPrimaryDark"
+
             >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="content_layout"
+                android:textColor="#ffffff"
                 />
         </LinearLayout>
     </com.example.dispatchtoucheventtest.view.SlidingLayout>
