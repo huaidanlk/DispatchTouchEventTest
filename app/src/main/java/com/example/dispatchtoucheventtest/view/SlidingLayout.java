@@ -102,7 +102,6 @@ public class SlidingLayout extends RelativeLayout {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case SCROLL_TO_RIGHT:
-                    //                    Log.d(TAG, "handler: " + msg.arg1+"--"+(msg.arg1) / SCROLL_DELAY_time);
                     Log.d(TAG, "handler: " + contentLayoutParams.rightMargin);
 
                     if (contentLayoutParams.rightMargin < -(screenWidth - contentShow)) {
@@ -117,6 +116,22 @@ public class SlidingLayout extends RelativeLayout {
                     msg1.what = SCROLL_TO_RIGHT;
                     msg1.arg1 = msg.arg1 - SCROLL_DELAY_time;
                     sendMessageDelayed(msg1, 10);
+                    break;
+                case SCROLL_TO_LEFT:
+                    Log.d(TAG, "handler: " + contentLayoutParams.rightMargin);
+
+                    if (contentLayoutParams.rightMargin < -(screenWidth - contentShow)) {
+                        contentLayoutParams.rightMargin = -(screenWidth - contentShow);
+                        contentLayout.setLayoutParams(contentLayoutParams);
+                        break;
+                    }
+                    contentLayoutParams.rightMargin = contentLayoutParams.rightMargin - SCROLL_DELAY_time;
+                    contentLayout.setLayoutParams(contentLayoutParams);
+
+                    Message msg2 = obtainMessage();
+                    msg2.what = SCROLL_TO_RIGHT;
+                    msg2.arg1 = msg.arg1 - SCROLL_DELAY_time;
+                    sendMessageDelayed(msg2, 10);
                     break;
             }
         }
@@ -218,7 +233,7 @@ public class SlidingLayout extends RelativeLayout {
                     }
                 }
                 //起始点左边
-                if (-upDeltaX >0) {
+                if (-upDeltaX > 0) {
                     if (-upDeltaX > screenWidth / 2 || -getScrollVelocity() > SNAP_VELOCITY) {
                         scrollToLeftLayout((int) (screenWidth - xUp));
                     }
@@ -254,7 +269,7 @@ public class SlidingLayout extends RelativeLayout {
     }
 
     /**
-     * 将屏幕滚动到左侧布局界面，滚动速度设定为30.
+     * 将屏幕滚动到左侧布局界面，滚动速度设定为10.
      */
     public void scrollToLeftLayout(int scrollDistance) {
         Message message = Message.obtain();
@@ -263,4 +278,13 @@ public class SlidingLayout extends RelativeLayout {
         handler.sendMessageDelayed(message, SCROLL_DELAY_time);
     }
 
+    /**
+     * 将屏幕滚动到右侧布局界面，滚动速度设定为10.
+     */
+    public void scrollToRightLayout(int scrollDistance) {
+        Message message = Message.obtain();
+        message.what = SCROLL_TO_LEFT;
+        message.arg1 = scrollDistance;
+        handler.sendMessageDelayed(message, SCROLL_DELAY_time);
+    }
 }
