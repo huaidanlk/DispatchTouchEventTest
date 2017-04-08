@@ -219,7 +219,7 @@ public class SlidingLayout extends RelativeLayout {
                 }
                 //起始点左边
                 if (-upDeltaX >0) {
-                    if (upDeltaX > screenWidth / 2 || getScrollVelocity() > SNAP_VELOCITY) {
+                    if (-upDeltaX > screenWidth / 2 || -getScrollVelocity() > SNAP_VELOCITY) {
                         scrollToLeftLayout((int) (screenWidth - xUp));
                     }
                 }
