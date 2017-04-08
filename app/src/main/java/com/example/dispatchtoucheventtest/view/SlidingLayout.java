@@ -81,7 +81,7 @@ public class SlidingLayout extends RelativeLayout {
     /**
      * 滚动显示和隐藏左侧布局时，手指滑动需要达到的速度。
      */
-    public static final int SNAP_VELOCITY = 200;
+    public static final int SNAP_VELOCITY = 400;
     //左侧菜单布局
     private View leftLayout;
 
@@ -120,16 +120,16 @@ public class SlidingLayout extends RelativeLayout {
                 case SCROLL_TO_LEFT:
                     Log.d(TAG, "handler: " + contentLayoutParams.rightMargin);
 
-                    if (contentLayoutParams.rightMargin < -(screenWidth - contentShow)) {
-                        contentLayoutParams.rightMargin = -(screenWidth - contentShow);
+                    if (contentLayoutParams.rightMargin >0) {
+                        contentLayoutParams.rightMargin = 0;
                         contentLayout.setLayoutParams(contentLayoutParams);
                         break;
                     }
-                    contentLayoutParams.rightMargin = contentLayoutParams.rightMargin - SCROLL_DELAY_time;
+                    contentLayoutParams.rightMargin = contentLayoutParams.rightMargin + SCROLL_DELAY_time;
                     contentLayout.setLayoutParams(contentLayoutParams);
 
                     Message msg2 = obtainMessage();
-                    msg2.what = SCROLL_TO_RIGHT;
+                    msg2.what = SCROLL_TO_LEFT;
                     msg2.arg1 = msg.arg1 - SCROLL_DELAY_time;
                     sendMessageDelayed(msg2, 10);
                     break;
@@ -185,9 +185,9 @@ public class SlidingLayout extends RelativeLayout {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         createVelocityTracker(event);
-        if (leftLayout.getVisibility() != View.VISIBLE) {
+      /*  if (leftLayout.getVisibility() != View.VISIBLE) {
             leftLayout.setVisibility(View.VISIBLE);
-        }
+        }*/
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 xDown = event.getRawX();
@@ -201,7 +201,7 @@ public class SlidingLayout extends RelativeLayout {
                 int deltaY = (int) (yMove - yDown);
                 //滑动到起始点右边
                 if (deltaX >= touchSlop) {
-                    //                    Log.d(TAG, "onTouchEvent: "+deltaX);
+                                        Log.d(TAG, "onTouchEvent: "+deltaX);
 
                     contentLayoutParams.rightMargin = -deltaX;
                     if (contentLayoutParams.rightMargin < contentRightMarginMin) {
@@ -230,6 +230,9 @@ public class SlidingLayout extends RelativeLayout {
                 if (upDeltaX > 0) {
                     if (upDeltaX > screenWidth / 2 || getScrollVelocity() > SNAP_VELOCITY) {
                         scrollToLeftLayout((int) (screenWidth - xUp));
+                    }else {
+                        scrollToRightLayout((upDeltaX));
+
                     }
                 }
                 //起始点左边
