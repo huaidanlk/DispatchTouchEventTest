@@ -18,8 +18,8 @@ import android.widget.RelativeLayout;
 
 public class SlidingLayout extends RelativeLayout {
     private static final String TAG = "TAG";
-    private static final int SCROLL_TO_RIGHT = 1;
-    private static final int SCROLL_TO_LEFT = 2;
+    private static final int SCROLL_TO_RIGHT_LAYOUT = 1;
+    private static final int SCROLL_TO_LEFT_LAYOUT = 2;
     private static final int SCROLL_DELAY_time = 10;
 
     /**
@@ -28,8 +28,6 @@ public class SlidingLayout extends RelativeLayout {
     private int screenWidth;
     //
     private int contentRightMarginMin;
-
-    private int contentShow = 100;
     /**
      * 在被判定为滚动之前用户手指可以移动的最大值。
      */
@@ -91,6 +89,8 @@ public class SlidingLayout extends RelativeLayout {
     //内容布局
     private View contentLayout;
 
+    private boolean isLeftLayoutDisplay = false;
+    private boolean isSliding = false;
     /**
      * 右侧布局的参数，通过此参数来重新确定右侧布局的宽度。
      */
@@ -101,35 +101,41 @@ public class SlidingLayout extends RelativeLayout {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case SCROLL_TO_RIGHT:
-                    Log.d(TAG, "handler: " + contentLayoutParams.rightMargin);
-
-                    if (contentLayoutParams.rightMargin < -(screenWidth - contentShow)) {
-                        contentLayoutParams.rightMargin = -(screenWidth - contentShow);
+                case SCROLL_TO_LEFT_LAYOUT:
+                    Log.d(TAG, "handler:TO_LEFT_LAYOUT " + contentLayoutParams.rightMargin);
+                    //停止滑动,左侧布局完全显示，内容布局隐藏
+                    if (contentLayoutParams.rightMargin <  contentRightMarginMin) {
+                        contentLayoutParams.rightMargin =contentRightMarginMin;
                         contentLayout.setLayoutParams(contentLayoutParams);
+                        isLeftLayoutDisplay = true;
+                        isSliding = false;
                         break;
                     }
+                    isSliding = true;
                     contentLayoutParams.rightMargin = contentLayoutParams.rightMargin - SCROLL_DELAY_time;
                     contentLayout.setLayoutParams(contentLayoutParams);
 
                     Message msg1 = obtainMessage();
-                    msg1.what = SCROLL_TO_RIGHT;
+                    msg1.what = SCROLL_TO_LEFT_LAYOUT;
                     msg1.arg1 = msg.arg1 - SCROLL_DELAY_time;
                     sendMessageDelayed(msg1, 10);
                     break;
-                case SCROLL_TO_LEFT:
-                    Log.d(TAG, "handler: " + contentLayoutParams.rightMargin);
+                case SCROLL_TO_RIGHT_LAYOUT:
+                    Log.d(TAG, "handler:TO_RIGHT_LAYOUT " + contentLayoutParams.rightMargin);
 
-                    if (contentLayoutParams.rightMargin >0) {
+                    if (contentLayoutParams.rightMargin > 0) {
                         contentLayoutParams.rightMargin = 0;
                         contentLayout.setLayoutParams(contentLayoutParams);
+                        isLeftLayoutDisplay = false;
+                        isSliding = false;
                         break;
                     }
+                    isSliding = true;
                     contentLayoutParams.rightMargin = contentLayoutParams.rightMargin + SCROLL_DELAY_time;
                     contentLayout.setLayoutParams(contentLayoutParams);
 
                     Message msg2 = obtainMessage();
-                    msg2.what = SCROLL_TO_LEFT;
+                    msg2.what = SCROLL_TO_RIGHT_LAYOUT;
                     msg2.arg1 = msg.arg1 - SCROLL_DELAY_time;
                     sendMessageDelayed(msg2, 10);
                     break;
@@ -142,13 +148,14 @@ public class SlidingLayout extends RelativeLayout {
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         screenWidth = wm.getDefaultDisplay().getWidth();
         contentRightMarginMin = (int) (getResources().getDisplayMetrics().density * 50) - screenWidth;
-        touchSlop = ViewConfiguration.get(context).getScaledTouchSlop() / 16;
-        //        Log.d(TAG, "onTouchEvent: "+touchSlop);
+        touchSlop = ViewConfiguration.get(context).getScaledTouchSlop() / 4;
+        Log.d(TAG, "touchSlop: " + touchSlop);
         //        Log.d(TAG, "screenWidth: " + screenWidth);
 
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d(TAG, "onClick: ----------------");
 
             }
         });
@@ -166,9 +173,6 @@ public class SlidingLayout extends RelativeLayout {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         if (changed) {
-            //            Log.d(TAG, "onTouchEvent: "+changed);
-
-            //
             leftLayout = getChildAt(0);
             leftLayoutParams = (MarginLayoutParams) leftLayout.getLayoutParams();
             //            rightEdge=-leftLayoutParams.width;
@@ -201,44 +205,51 @@ public class SlidingLayout extends RelativeLayout {
                 int deltaY = (int) (yMove - yDown);
                 //滑动到起始点右边
                 if (deltaX >= touchSlop) {
-                                        Log.d(TAG, "onTouchEvent: "+deltaX);
-
-                    contentLayoutParams.rightMargin = -deltaX;
-                    if (contentLayoutParams.rightMargin < contentRightMarginMin) {
-                        contentLayoutParams.rightMargin = contentRightMarginMin;
+                    //                    Log.d(TAG, "onTouchEvent: " + deltaX);
+                    //如果左侧布局未完全显示，内容布局未隐藏
+                    if (!isLeftLayoutDisplay) {
+                        contentLayoutParams.rightMargin = -deltaX;
+                        if (contentLayoutParams.rightMargin < contentRightMarginMin) {
+                            contentLayoutParams.rightMargin = contentRightMarginMin;
+                        }
+                        contentLayout.setLayoutParams(contentLayoutParams);
                     }
-                    contentLayout.setLayoutParams(contentLayoutParams);
-                    //                    Log.d(TAG, "move_left: "+deltaX);
+
                 }
                 //滑动到起始点左边
                 if (-deltaX >= touchSlop) {
                     //                    Log.d(TAG, "move_left: " + deltaX + " right_margin" + contentLayoutParams.rightMargin);
-                    contentLayoutParams.rightMargin = rightEdge - deltaX;
-                    if (contentLayoutParams.rightMargin < rightEdge || xMove <= xDown) {
-                        contentLayoutParams.rightMargin = rightEdge;
+                    //如果左侧布局完全显示，内容布局隐藏
+                    if (isLeftLayoutDisplay) {
+                        contentLayoutParams.rightMargin = contentRightMarginMin - deltaX;
+                      /*  if (contentLayoutParams.rightMargin < rightEdge || xMove <= xDown) {
+                            contentLayoutParams.rightMargin = rightEdge;
+                        }*/
+                        contentLayout.setLayoutParams(contentLayoutParams);
+                        Log.d(TAG, "move_left: " + deltaX + " right_margin" + contentLayoutParams.rightMargin);
                     }
-                    contentLayout.setLayoutParams(contentLayoutParams);
-                    //                    Log.d(TAG, "move_left: "+deltaX+" right_margin"+contentLayoutParams.rightMargin);
-
                 }
 
                 break;
             case MotionEvent.ACTION_UP:
                 xUp = event.getRawX();
                 int upDeltaX = (int) (xUp - xDown);
+                Log.d(TAG, "upDeltaX: " + upDeltaX);
+
                 //起始点右边
-                if (upDeltaX > 0) {
+                if (upDeltaX > touchSlop && !isLeftLayoutDisplay) {
                     if (upDeltaX > screenWidth / 2 || getScrollVelocity() > SNAP_VELOCITY) {
                         scrollToLeftLayout((int) (screenWidth - xUp));
-                    }else {
+                    } else {
                         scrollToRightLayout((upDeltaX));
-
                     }
                 }
-                //起始点左边
-                if (-upDeltaX > 0) {
-                    if (-upDeltaX > screenWidth / 2 || -getScrollVelocity() > SNAP_VELOCITY) {
-                        scrollToLeftLayout((int) (screenWidth - xUp));
+                //起始点左边 左侧布局已经完全显示
+                if (-upDeltaX > touchSlop && isLeftLayoutDisplay) {
+                    if ((upDeltaX - contentRightMarginMin) <screenWidth / 2 || getScrollVelocity() > SNAP_VELOCITY) {
+                        scrollToRightLayout( (upDeltaX));
+                    } else {
+                        scrollToLeftLayout((int)(xUp));
                     }
                 }
                 break;
@@ -276,8 +287,8 @@ public class SlidingLayout extends RelativeLayout {
      */
     public void scrollToLeftLayout(int scrollDistance) {
         Message message = Message.obtain();
-        message.what = SCROLL_TO_RIGHT;
-        message.arg1 = scrollDistance;
+        message.what = SCROLL_TO_LEFT_LAYOUT;
+        message.arg1 = Math.abs(scrollDistance);
         handler.sendMessageDelayed(message, SCROLL_DELAY_time);
     }
 
@@ -286,8 +297,8 @@ public class SlidingLayout extends RelativeLayout {
      */
     public void scrollToRightLayout(int scrollDistance) {
         Message message = Message.obtain();
-        message.what = SCROLL_TO_LEFT;
-        message.arg1 = scrollDistance;
+        message.what = SCROLL_TO_RIGHT_LAYOUT;
+        message.arg1 = Math.abs(scrollDistance);
         handler.sendMessageDelayed(message, SCROLL_DELAY_time);
     }
 }
