@@ -57,14 +57,15 @@ public class SlidingLayout extends RelativeLayout {
      * 记录手指移动时的纵坐标。
      */
     private float yMove;
-
-    private float xLast;
-    private float yLast;
-
     /**
      * 记录手机抬起时的横坐标。
      */
     private float xUp;
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        return false;
+    }
 
     /**
      * 右侧布局最多可以滑动到的左边缘。
@@ -104,8 +105,8 @@ public class SlidingLayout extends RelativeLayout {
                 case SCROLL_TO_LEFT_LAYOUT:
                     Log.d(TAG, "handler:TO_LEFT_LAYOUT " + contentLayoutParams.rightMargin);
                     //停止滑动,左侧布局完全显示，内容布局隐藏
-                    if (contentLayoutParams.rightMargin <  contentRightMarginMin) {
-                        contentLayoutParams.rightMargin =contentRightMarginMin;
+                    if (contentLayoutParams.rightMargin < contentRightMarginMin) {
+                        contentLayoutParams.rightMargin = contentRightMarginMin;
                         contentLayout.setLayoutParams(contentLayoutParams);
                         isLeftLayoutDisplay = true;
                         isSliding = false;
@@ -152,13 +153,6 @@ public class SlidingLayout extends RelativeLayout {
         Log.d(TAG, "touchSlop: " + touchSlop);
         //        Log.d(TAG, "screenWidth: " + screenWidth);
 
-        setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick: ----------------");
-
-            }
-        });
     }
 
     @Override
@@ -183,12 +177,16 @@ public class SlidingLayout extends RelativeLayout {
             //            Log.d(TAG, "onTouchEvent: "+contentLayoutParams.width);
 
             contentLayout.setLayoutParams(contentLayoutParams);
+
         }
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         createVelocityTracker(event);
+        if (isSliding) {
+            return false;
+        }
       /*  if (leftLayout.getVisibility() != View.VISIBLE) {
             leftLayout.setVisibility(View.VISIBLE);
         }*/
@@ -196,16 +194,18 @@ public class SlidingLayout extends RelativeLayout {
             case MotionEvent.ACTION_DOWN:
                 xDown = event.getRawX();
                 yDown = event.getRawY();
+                Log.d(TAG, "Down: ");
+
                 break;
             case MotionEvent.ACTION_MOVE:
-                //                Log.d(TAG, "onTouchEvent: ");
+//                Log.d(TAG, "onTouchEvent: ");
                 xMove = event.getRawX();
                 yMove = event.getRawY();
                 int deltaX = (int) (xMove - xDown);
                 int deltaY = (int) (yMove - yDown);
                 //滑动到起始点右边
                 if (deltaX >= touchSlop) {
-                    //                    Log.d(TAG, "onTouchEvent: " + deltaX);
+                                        Log.d(TAG, "onTouchEvent: " + deltaX);
                     //如果左侧布局未完全显示，内容布局未隐藏
                     if (!isLeftLayoutDisplay) {
                         contentLayoutParams.rightMargin = -deltaX;
@@ -246,15 +246,14 @@ public class SlidingLayout extends RelativeLayout {
                 }
                 //起始点左边 左侧布局已经完全显示
                 if (-upDeltaX > touchSlop && isLeftLayoutDisplay) {
-                    if ((upDeltaX - contentRightMarginMin) <screenWidth / 2 || getScrollVelocity() > SNAP_VELOCITY) {
-                        scrollToRightLayout( (upDeltaX));
+                    if ((upDeltaX - contentRightMarginMin) < screenWidth / 2 || getScrollVelocity() > SNAP_VELOCITY) {
+                        scrollToRightLayout((upDeltaX));
                     } else {
-                        scrollToLeftLayout((int)(xUp));
+                        scrollToLeftLayout((int) (xUp));
                     }
                 }
                 break;
         }
-
 
         return true;
     }
