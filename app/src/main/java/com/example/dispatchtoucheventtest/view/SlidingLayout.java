@@ -16,7 +16,7 @@ import android.widget.RelativeLayout;
  * Created by 坏蛋 on 2017/4/6.
  */
 
-public class SlidingLayout extends RelativeLayout {
+public class SlidingLayout extends RelativeLayout implements View.OnTouchListener {
     private static final String TAG = "TAG";
     private static final int SCROLL_TO_RIGHT_LAYOUT = 1;
     private static final int SCROLL_TO_LEFT_LAYOUT = 2;
@@ -62,10 +62,6 @@ public class SlidingLayout extends RelativeLayout {
      */
     private float xUp;
 
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return false;
-    }
 
     /**
      * 右侧布局最多可以滑动到的左边缘。
@@ -83,7 +79,10 @@ public class SlidingLayout extends RelativeLayout {
     public static final int SNAP_VELOCITY = 400;
     //左侧菜单布局
     private View leftLayout;
-
+    /**
+     * 用于监听侧滑事件的View。
+     */
+    private View mBindView;
     //
     private MarginLayoutParams leftLayoutParams;
 
@@ -149,7 +148,7 @@ public class SlidingLayout extends RelativeLayout {
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         screenWidth = wm.getDefaultDisplay().getWidth();
         contentRightMarginMin = (int) (getResources().getDisplayMetrics().density * 50) - screenWidth;
-        touchSlop = ViewConfiguration.get(context).getScaledTouchSlop() / 4;
+        touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         Log.d(TAG, "touchSlop: " + touchSlop);
         //        Log.d(TAG, "screenWidth: " + screenWidth);
 
@@ -159,9 +158,8 @@ public class SlidingLayout extends RelativeLayout {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         screenWidth = getMeasuredWidth();
-        //        Log.d(TAG, "screenWidth_onMeasure: " + screenWidth);
-
     }
+
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
@@ -181,31 +179,174 @@ public class SlidingLayout extends RelativeLayout {
         }
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        createVelocityTracker(event);
-        if (isSliding) {
-            return false;
+    /*
+    * 外部拦截法 源自刚哥的书 ACTION_DOWN事件不能拦截，不然子View 将完全收不到任何事件，全部被父ViewGroup处理了
+    * 在ACTION_MOVE处理需要拦截的逻辑，交给父ViewGroup处理，拦截后会调用
+    * */
+ /*   @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        boolean intercepted = false;
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                xDown = ev.getRawX();
+                yDown = ev.getRawY();
+                intercepted = false;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                xMove = ev.getRawX();
+                yMove = ev.getRawY();
+                int deltaX = (int) (xMove - xDown);
+                int deltaY = (int) (yMove - yDown);
+                if (Math.abs(deltaX) >= touchSlop && Math.abs(deltaY) < touchSlop) {
+                    intercepted = true;
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                //会屏蔽子控件 onClick 事件
+                //                intercepted=true;
+                intercepted = false;
+                break;
         }
-      /*  if (leftLayout.getVisibility() != View.VISIBLE) {
-            leftLayout.setVisibility(View.VISIBLE);
-        }*/
+
+        return intercepted;
+    }*/
+
+    /*
+        * 内部拦截法
+        * */
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+
+            xDown = ev.getRawX();
+            yDown = ev.getRawY();
+            Log.d(TAG, "onInterceptTouchEvent---xDown:" + xDown + "  yDown:" + yDown);
+
+            return false;
+        } else
+            return true;
+
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        createVelocityTracker(event);
+        Log.d(TAG, "onTouch---xDown:" + xDown + "  yDown:" + yDown);
+
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                getParent().requestDisallowInterceptTouchEvent(true);
+
                 xDown = event.getRawX();
                 yDown = event.getRawY();
-                Log.d(TAG, "Down: ");
+                Log.d(TAG, "onTouch---xDown:" + xDown + "  yDown:" + yDown);
 
                 break;
             case MotionEvent.ACTION_MOVE:
-//                Log.d(TAG, "onTouchEvent: ");
                 xMove = event.getRawX();
                 yMove = event.getRawY();
                 int deltaX = (int) (xMove - xDown);
                 int deltaY = (int) (yMove - yDown);
                 //滑动到起始点右边
                 if (deltaX >= touchSlop) {
-                                        Log.d(TAG, "onTouchEvent: " + deltaX);
+                    getParent().requestDisallowInterceptTouchEvent(false);
+                    Log.d(TAG, "onTouch: " + deltaX + "  xDown  " + xDown);
+                    //如果左侧布局未完全显示，内容布局未隐藏
+                    if (!isLeftLayoutDisplay) {
+                        isSliding = true;
+                        contentLayoutParams.rightMargin = -deltaX;
+                        if (contentLayoutParams.rightMargin < contentRightMarginMin) {
+                            contentLayoutParams.rightMargin = contentRightMarginMin;
+                        }
+                        contentLayout.setLayoutParams(contentLayoutParams);
+                    }
+
+                }
+                //滑动到起始点左边
+                if (-deltaX >= touchSlop) {
+                    getParent().requestDisallowInterceptTouchEvent(false);
+
+                    //                    Log.d(TAG, "move_left: " + deltaX + " right_margin" + contentLayoutParams.rightMargin);
+                    //如果左侧布局完全显示，内容布局隐藏
+                    if (isLeftLayoutDisplay) {
+                        isSliding = true;
+                        contentLayoutParams.rightMargin = contentRightMarginMin - deltaX;
+                      /*  if (contentLayoutParams.rightMargin < rightEdge || xMove <= xDown) {
+                            contentLayoutParams.rightMargin = rightEdge;
+                        }*/
+                        contentLayout.setLayoutParams(contentLayoutParams);
+                        Log.d(TAG, "move_left: " + deltaX + " right_margin" + contentLayoutParams.rightMargin);
+                    }
+                }
+
+                break;
+            case MotionEvent.ACTION_UP:
+                xUp = event.getRawX();
+                int upDeltaX = (int) (xUp - xDown);
+                Log.d(TAG, "upDeltaX: " + upDeltaX);
+
+                //起始点右边
+                if (upDeltaX > touchSlop && !isLeftLayoutDisplay) {
+                    if (upDeltaX > screenWidth / 2 || getScrollVelocity() > SNAP_VELOCITY) {
+                        scrollToLeftLayout((int) (screenWidth - xUp));
+                    } else {
+                        scrollToRightLayout((upDeltaX));
+                    }
+                }
+                //起始点左边 左侧布局已经完全显示
+                if (-upDeltaX > touchSlop && isLeftLayoutDisplay) {
+                    if ((upDeltaX - contentRightMarginMin) < screenWidth / 2 || getScrollVelocity() > SNAP_VELOCITY) {
+                        scrollToRightLayout((upDeltaX));
+                    } else {
+                        scrollToLeftLayout((int) (xUp));
+                    }
+                }
+                recycleVelocityTracker();
+                break;
+        }
+/*        if (v.isEnabled()) {
+            if (isSliding) {
+                unFocusBindView();
+                return true;
+            }
+            if (isLeftLayoutDisplay) {
+                return true;
+            }
+            return false;
+        }*/
+        return false;
+    }
+
+    /**
+     * 使用可以获得焦点的控件在滑动的时候失去焦点。
+     */
+    private void unFocusBindView() {
+        if (mBindView != null) {
+            mBindView.setPressed(false);
+            mBindView.setFocusable(false);
+            mBindView.setFocusableInTouchMode(false);
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        createVelocityTracker(event);
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                xDown = event.getRawX();
+                yDown = event.getRawY();
+                Log.d(TAG, "xDown:yDown ");
+
+                break;
+            case MotionEvent.ACTION_MOVE:
+                //                Log.d(TAG, "onTouchEvent: ");
+                xMove = event.getRawX();
+                yMove = event.getRawY();
+                int deltaX = (int) (xMove - xDown);
+                int deltaY = (int) (yMove - yDown);
+                //滑动到起始点右边
+                if (deltaX >= touchSlop) {
+                    Log.d(TAG, "onTouchEvent: " + deltaX);
                     //如果左侧布局未完全显示，内容布局未隐藏
                     if (!isLeftLayoutDisplay) {
                         contentLayoutParams.rightMargin = -deltaX;
@@ -254,8 +395,19 @@ public class SlidingLayout extends RelativeLayout {
                 }
                 break;
         }
+        if (isLeftLayoutDisplay)
+            return true;
+        return false;
+    }
 
-        return true;
+    /**
+     * 绑定监听侧滑事件的View，即在绑定的View进行滑动才可以显示和隐藏左侧布局。
+     *
+     * @param bindView 需要绑定的View对象。
+     */
+    public void setScrollEvent(View bindView) {
+        mBindView = bindView;
+//        mBindView.setOnTouchListener(this);
     }
 
     /**
@@ -282,6 +434,14 @@ public class SlidingLayout extends RelativeLayout {
     }
 
     /**
+     * 回收VelocityTracker对象。
+     */
+    private void recycleVelocityTracker() {
+        mVelocityTracker.recycle();
+        mVelocityTracker = null;
+    }
+
+    /**
      * 将屏幕滚动到左侧布局界面，滚动速度设定为10.
      */
     public void scrollToLeftLayout(int scrollDistance) {
@@ -300,4 +460,6 @@ public class SlidingLayout extends RelativeLayout {
         message.arg1 = Math.abs(scrollDistance);
         handler.sendMessageDelayed(message, SCROLL_DELAY_time);
     }
+
+
 }

@@ -47,7 +47,6 @@ public class ViewAndViewGroupActivity extends AppCompatActivity {
         *
         *      当点击button 时  MyLayout dispatchTouchEvent
                                     ->MyLayout onInterceptTouchEvent
-                                       ->MyButton onTouchEvent
                                            ->MyButton dispatchTouchEvent
                                                ->MyButton onTouchEvent
                 在view.dispatchTouchEvent()中，会先调用onTouch(),如果button 注册了

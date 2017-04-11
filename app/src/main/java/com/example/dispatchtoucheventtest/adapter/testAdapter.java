@@ -28,7 +28,7 @@ public class TestAdapter extends RecyclerView.Adapter<TestAdapter.ViewHolder> {
         holder.tv_test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(v.getContext(),list[position],Toast.LENGTH_SHORT).show();
+                Toast.makeText(v.getContext(),"recycleView "+list[position],Toast.LENGTH_SHORT).show();
             }
         });
     }
