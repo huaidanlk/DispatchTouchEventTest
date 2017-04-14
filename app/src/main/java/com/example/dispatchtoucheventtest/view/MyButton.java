@@ -32,7 +32,7 @@ public class MyButton extends Button implements View.OnTouchListener{
     public boolean onTouchEvent(MotionEvent event) {
         Log.d(TAG, "MyButton onTouchEvent:begin "+event.getAction());
         //不予许viewGroup 拦截
-        getParent().requestDisallowInterceptTouchEvent(true);
+//        getParent().requestDisallowInterceptTouchEvent(true);
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
                 Log.d(TAG, "MyButton onTouchEvent:ACTION_DOWN "+event.getAction());

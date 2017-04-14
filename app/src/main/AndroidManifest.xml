@@ -21,8 +21,11 @@
         </activity>
 
         <activity android:name=".SlidingMenuActivity">
-
         </activity>
+
+        <activity android:name=".NestedScrollActivity">
+        </activity>
+
     </application>
 
 

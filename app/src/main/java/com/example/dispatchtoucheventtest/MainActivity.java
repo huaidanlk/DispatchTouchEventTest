@@ -13,6 +13,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         findViewById(R.id.btn_view_viewGroup).setOnClickListener(this);
         findViewById(R.id.btn_sliding_menu).setOnClickListener(this);
+        findViewById(R.id.btn_nested_scrolling).setOnClickListener(this);
 
     }
 
@@ -24,6 +25,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btn_sliding_menu:
                 startActivity(new Intent(this,SlidingMenuActivity.class));
+                break;
+            case R.id.btn_nested_scrolling:
+                startActivity(new Intent(this,NestedScrollActivity.class));
                 break;
         }
     }

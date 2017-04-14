@@ -43,11 +43,11 @@ public class MyLayout extends LinearLayout implements View.OnTouchListener{
             case MotionEvent.ACTION_MOVE:
                 Log.d(TAG, "MyLayout onInterceptTouchEvent:ACTION_MOVE "+ev.getAction());
                 //在ACTION_MOVE 时 拦截子View 的在ACTION_MOVE事件，那么子View 将不会收到
-                //后面一系列的事件流
+                //后面一系列的事件流(UP/CANCEL 等等)
                 return true;
             case MotionEvent.ACTION_UP:
                 Log.d(TAG, "MyLayout onInterceptTouchEvent:ACTION_UP "+ev.getAction());
-                return true;
+                return false;
         }
         return super.onInterceptTouchEvent(ev);
     }
