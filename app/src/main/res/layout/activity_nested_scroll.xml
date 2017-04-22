@@ -10,13 +10,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:background="#ff9999"
         android:gravity="center">
 
-        <ImageView
+        <TextView
             android:id="@+id/iv_top"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:src="@drawable/icon_top" />
+            android:text="top_text"
+            android:textColor="@color/colorAccent"
+            android:background="@drawable/icon_top" />
 
         <TextView
             android:layout_width="match_parent"
@@ -27,7 +30,9 @@
         <com.example.dispatchtoucheventtest.view.MyNestedScrollChildLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:background="#882211"
+            >
 
             <TextView
                 android:layout_width="match_parent"

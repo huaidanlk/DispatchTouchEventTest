@@ -7,6 +7,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 /**
  * Created by 坏蛋 on 2017/4/13.
@@ -26,6 +27,12 @@ public class MyNestedScrollParentLayout extends LinearLayout implements NestedSc
     protected void onFinishInflate() {
         super.onFinishInflate();
         iv_top=getChildAt(0);
+        iv_top.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(v.getContext(),"imageView is click",Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 

@@ -26,6 +26,9 @@
         <activity android:name=".NestedScrollActivity">
         </activity>
 
+        <activity android:name=".MeasureLayoutDrawActivity">
+        </activity>
+
     </application>
 
 

@@ -16,10 +16,16 @@
         android:id="@+id/btn_sliding_menu"
         android:text="侧滑菜单"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        />
     <Button
         android:id="@+id/btn_nested_scrolling"
         android:text="NestedScrolling"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/btn_measure_layout_draw"
+        android:text="MeasureLayoutDraw"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 </LinearLayout>

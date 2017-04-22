@@ -25,6 +25,7 @@ public class MyNestedScrollChildLayout extends LinearLayout implements NestedScr
     public MyNestedScrollChildLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
+
     /*是否可以嵌套滑动
     * */
     @Override
@@ -32,17 +33,20 @@ public class MyNestedScrollChildLayout extends LinearLayout implements NestedScr
         Log.d(TAG, "setNestedScrollingEnabled:" + enabled);
         getScrollingChildHelper().setNestedScrollingEnabled(enabled);
     }
+
     @Override
     public boolean isNestedScrollingEnabled() {
         Log.d(TAG, "isNestedScrollingEnabled");
         return getScrollingChildHelper().isNestedScrollingEnabled();
 
     }
+
     @Override
     public boolean startNestedScroll(int axes) {
         Log.d(TAG, "startNestedScroll:" + axes);
         return getScrollingChildHelper().startNestedScroll(axes);
     }
+
     @Override
     public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
         Log.d(TAG, "dispatchNestedPreScroll:dx" + dx + ",dy:" + dy + ",consumed:" + consumed + ",offsetInWindow:" + offsetInWindow);
@@ -57,11 +61,14 @@ public class MyNestedScrollChildLayout extends LinearLayout implements NestedScr
         }
         return mScrollingChildHelper;
     }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        int xMove = (int)(event.getX() + 0.5f);
+        int xMove = (int) (event.getX() + 0.5f);
         int yMove = (int) (event.getRawY() + 0.5f);
-        switch (event.getAction()){
+        Log.d(TAG, "onTouchEvent: getScaleY="+getScrollY());
+
+        switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 int nestedScrollAxis = ViewCompat.SCROLL_AXIS_NONE;
                 nestedScrollAxis |= ViewCompat.SCROLL_AXIS_VERTICAL;
@@ -73,14 +80,19 @@ public class MyNestedScrollChildLayout extends LinearLayout implements NestedScr
                 int dy = mLastTouchY - yMove;
 
                 //如果父View 需要处理滑动事件
-                if (dispatchNestedPreScroll(dx, dy, mScrollConsumed, mScrollOffset)) {
-//                    Log.d(TAG, "parent_move:dy:" + dy + ",mLastTouchY:" + mLastTouchY + ",yMove;" + yMove);
-//
-//                    dy -= mScrollConsumed[1];
-//                    if (dy == 0) {
-//                        return true;
-//                    }
+//                Log.d(TAG, "onTouchEvent: getScaleY="+getScaleY(
+
+                //分发滑动，如果父类一点儿也没有消费会返回false
+                if (getScrollY()==0&&dispatchNestedPreScroll(dx, dy, mScrollConsumed, mScrollOffset)) {
+                    //                    Log.d(TAG, "parent_move:dy:" + dy + ",mLastTouchY:" + mLastTouchY + ",yMove;" + yMove);
+                    //
+                    //                    dy -= mScrollConsumed[1];
+                    //                    if (dy == 0) {
+                    //                        return true;
+                    //                    }
                 } else {
+                    Log.d(TAG, "child_move:dy:" + dy + ",mLastTouchY:" + mLastTouchY + ",yMove;" + yMove);
+
                     scrollBy(0, dy);
                 }
                 break;
@@ -89,24 +101,28 @@ public class MyNestedScrollChildLayout extends LinearLayout implements NestedScr
         mLastTouchY = yMove;
         return true;
     }
+
     @Override
     public void scrollTo(int x, int y) {
         int MaxY = getMeasuredHeight() - showHeight;
-        if (y > MaxY) {
-            y = MaxY;
+        Log.d(TAG, "scrollTo: MaxY="+MaxY+"  getMeasuredHeight()="+getMeasuredHeight()+"  showHeight=" +showHeight);
+        if (y > showHeight) {
+            y = showHeight;
         }
         if (y < 0) {
             y = 0;
         }
         super.scrollTo(x, y);
     }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         if (showHeight <= 0) {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             showHeight = getMeasuredHeight();
+            Log.d(TAG, "onMeasure: "+showHeight);
         }
-//        heightMeasureSpec = MeasureSpec.makeMeasureSpec(1000000, MeasureSpec.UNSPECIFIED);
+        //        heightMeasureSpec = MeasureSpec.makeMeasureSpec(1000000, MeasureSpec.UNSPECIFIED);
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 }
