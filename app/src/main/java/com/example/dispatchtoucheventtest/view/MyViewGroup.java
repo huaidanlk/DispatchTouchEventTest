@@ -40,19 +40,19 @@ public class MyViewGroup extends ViewGroup {
         int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
-            if (child.getVisibility()!=View.GONE){
+            if (child.getVisibility() != View.GONE) {
                 measureChild(child, widthMeasureSpec, heightMeasureSpec);
-                MarginLayoutParams  lp=(MarginLayoutParams)child.getLayoutParams();
-                int childWidth = child.getMeasuredWidth()+lp.leftMargin+lp.rightMargin;
-                int childHeight = child.getMeasuredHeight()+lp.topMargin+lp.bottomMargin;
+                MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
+                int childWidth = child.getMeasuredWidth() + lp.leftMargin + lp.rightMargin;
+                int childHeight = child.getMeasuredHeight() + lp.topMargin + lp.bottomMargin;
                 height += childHeight;
                 width = Math.max(childWidth, width);
             }
         }
         /*用来支持 ViewGroup的padding属性
         * */
-        height += getPaddingBottom()+getPaddingTop();
-        width+=getPaddingLeft()+getPaddingRight();
+        height += getPaddingBottom() + getPaddingTop();
+        width += getPaddingLeft() + getPaddingRight();
 
         /*当 ViewGroup 的 layout_height=wrap_content 的时候 其高度应该是所有子View的高度总和
         * */
@@ -63,16 +63,20 @@ public class MyViewGroup extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        int top=0;
-        int childCount=getChildCount();
-        for(int i=0;i<childCount;i++){
-            View child=getChildAt(i);
-            MarginLayoutParams lp= (MarginLayoutParams) child.getLayoutParams();
-            int childHeight=child.getMeasuredHeight()+lp.topMargin+lp.bottomMargin;
-            int childWidth=child.getMeasuredWidth()+lp.leftMargin+lp.rightMargin;
-            child.layout(0,top,childWidth,top+childHeight);
-
-            top+=childHeight;
+        int top = 0;
+        int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            View child = getChildAt(i);
+            MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
+            int childHeight = child.getMeasuredHeight() + lp.topMargin + lp.bottomMargin;
+            int childWidth = child.getMeasuredWidth() + lp.leftMargin + lp.rightMargin;
+//            child.layout(0, top, childWidth, top + childHeight);
+            //支持子view的margin
+            child.layout( lp.leftMargin, top+lp.topMargin, child.getMeasuredWidth()+
+                    lp.leftMargin, top + child.getMeasuredHeight()+lp.bottomMargin);
+            //vertical 布局方式 只计算高度
+            top += childHeight;
+            MarginLayoutParams layoutParams= (MarginLayoutParams) this.getLayoutParams();
         }
     }
 
@@ -80,6 +84,9 @@ public class MyViewGroup extends ViewGroup {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
     }
+
+
+    //重写 支持MarginLayoutParams
     @Override
     protected LayoutParams generateLayoutParams(LayoutParams p) {
         return new MarginLayoutParams(p);

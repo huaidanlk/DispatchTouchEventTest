@@ -3,18 +3,20 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
+
     <com.example.dispatchtoucheventtest.view.MyViewGroup
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#ffff22"
-        >
+        android:id="@+id/myViewGroup">
         <TextView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:background="#ff6622"
             android:text="hello"
             android:textColor="#ffffff"
             android:layout_margin="30dp"
+            android:padding="10dp"
             />
         <TextView
             android:layout_width="20dp"
@@ -40,12 +42,16 @@
         android:background="#ffff22"
         android:layout_margin="10dp"
         android:padding="10dp"
+        android:gravity="center_horizontal"
         >
         <TextView
             android:layout_width="60dp"
             android:layout_height="20dp"
             android:background="#ff6622"
-            android:layout_margin="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:text="hello word"
+            android:textColor="#fff"
             />
 
     </LinearLayout>
